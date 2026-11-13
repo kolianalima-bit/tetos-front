@@ -9,3 +9,11 @@ export const useLogin = () => {
         }
     })
 }
+export const useCriarUsuario = () => {
+    return useMutation({
+        mutationFn: async (dados) => {
+            const res = await AXIOS.post("/usuario", dados);
+            return res.data;
+        }
+    })
+}

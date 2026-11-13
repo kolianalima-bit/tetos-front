@@ -1,8 +1,9 @@
 import { App, Button, Form, Input } from "antd";
-import { useLogin } from "../hoocks/usuarioHoocks";
+import { useLogin } from "../hooks/usuarioHooks";
 import { useNavigate } from "react-router";
 
 const Login = () => {
+
     const navigate = useNavigate();
     const { notification } = App.useApp();
     const { mutate: login, isPending: loginPending } = useLogin();
@@ -13,19 +14,20 @@ const Login = () => {
                 notification[type]({
                     description
                 });
-                if (type === "success") {
+                if (type == "success") {
                     sessionStorage.setItem("token", token);
                     sessionStorage.setItem("usuario", JSON.stringify(usuario));
                     navigate("/home");
                 }
             },
             onError: ({ response: { data: { type, description } } }) => {
-                notification.[type]({
+                notification[type]({
                     description
                 });
             }
         })
     }
+
     return (
         <div className="h-screen flex justify-center items-center bg-blue-500">
             <div className="w-75 p-4 bg-white rounded-2xl">
