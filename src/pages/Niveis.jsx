@@ -1,28 +1,147 @@
-import { Button, Table } from "antd";
+import { Button, Drower, Form, Imput, Popconfirm, Table } from "antd";
+import { LuPencil, LuPlus, LuTrash2 } from "react-icons/lu";
+import { useBuscarNiveis, useCriarNivel } from "../hooks/niveisHooks";
+import { useState } from "react";
 
 const Niveis = () => {
+
+    const [mostrarCriar, setMostrarCriar] = useState(false);
+    const { notification } = App.useApp();
+    const { data: niveis, isLoading: loadingNiveis } = useBuscarNiveis();
+    const { mutate: criarNivel, isLoading: loadingCriar } = useCriarNivel();
+
+    function criar(dados) {
+        criarNivel(dados, {
+            onSuccess: ({ type, description }) => {
+                setMostrarCriar(false);
+                notification.success({
+                    description,
+                    placement: "bottomRight"
+                });
+            },
+            onError: ({ response: { data: { type, description } } }) => {
+                notification.error({
+                    description
+    
+                });
+            }
+        })
+    }
+
     return (
         <div>
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-3x1 font-bold">Niveis</h2>
+                <h2 className="text-3xl font-bold">Níveis</h2>
                 <Button
                     type="primary"
-                    icon={LuPlus />}
+                    icon={<LuPlus />}
+                    onClick={() => setMostrarCriar(true)}
 
-                >Novo nivel</Button>
+                >Novo nível</Button>
             </div>
 
             <div>
-<Table>
-    <Table.Column 
-    title="Nome" 
-    dataIndex="nome"
+                <Table
+                    dataSource={niveis || []}
+                    rowKey={"id"}
+                    loading={loadingNiveis}
+                >
+                    <Table.Column
+                        title="Nome"
+                        dataIndex="nome"
 
-</Table>
 
+                    />
+
+                    <Table.Column
+                        title="Ações"
+                        className="w-25"
+                        render={(_, linha)} => (
+                    <div className="flex gap-2"
+                            
+                    <div>
+                        <Button
+                            icon={LuPencil />}
+                            type="primary"
+                        />
+                        <Popconfirm>
+                            title="Deseja realmente apagar?"
+                            okText="Sim"
+                            cancelText="Não"
+                            >
+
+                            <Button
+                                icon={LuTrash2 />}
+                                type="primary"
+                            />
+
+                        </Popconfirm>
+
+                        <title="Aviso:"
+                        description="Deseja realmente apagar?"
+                        okText="Sim"
+                        cancelText="Não"
+                        >
+
+                        <Button
+                            icon={LuTrash2 />}
+                            type="primary"
+                        />
+
+                    </Popconfirm>
+
+                    <title="Aviso:"
+                    description="Deseja realmente apagar?"
+                    okText="Sim"
+                    cancelText="Não"
+                        >
 
             </div>
-        </div>
+                        )}
+
+                        />
+
+
+        </Table>
+            </div >
+        </div >
+
+
+    <div>
+        <Drawer
+            title="Criar"
+            open={mostrarCriar}
+            onClose={() => setMostrarCriar(false)}
+
+        >
+            <Form
+                layout="vertical"
+                onFinish={criar}
+
+            >
+                <Form.Item
+                    label="Nome"
+                    name="nome"
+                    rules={[{ required: true, message: "Campo obrigatório" }]}
+                >
+                    <Input placeholder="Nome do nível" />
+                </Form.Item>
+                <div className="flex justify-end">
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={loadingCriar}
+                    >
+
+                        Enviar
+                    </Button>
+                </div>
+
+            </Form>
+
+        </Drawer>
+
+    </div>
     );
 }
 
