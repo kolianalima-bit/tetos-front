@@ -1,7 +1,8 @@
-import { Button, Drower, Form, Imput, Popconfirm, Table } from "antd";
+import { App, Button, Drawer, Form, Input, Popconfirm, Table } from "antd";
 import { LuPencil, LuPlus, LuTrash2 } from "react-icons/lu";
-import { useBuscarNiveis, useCriarNivel } from "../hooks/niveisHooks";
+import { useBuscarNiveis, useCriarNivel, useDeletarNivel } from "../hooks/niveisHooks";
 import { useState } from "react";
+
 
 const Niveis = () => {
 
@@ -9,23 +10,40 @@ const Niveis = () => {
     const { notification } = App.useApp();
     const { data: niveis, isLoading: loadingNiveis } = useBuscarNiveis();
     const { mutate: criarNivel, isLoading: loadingCriar } = useCriarNivel();
+    const { mutate: deletarNivel } = useDeletarNivel();
 
-    function criar(dados) {
+    function criar(dados){
         criarNivel(dados, {
             onSuccess: ({ type, description }) => {
                 setMostrarCriar(false);
-                notification.success({
+                notification[type]({
+                    description,
+                    placement: "bottomRight"
+                })
+            },
+            onError: ({ response: { data: { type, description } } }) => {
+                notification[type]({
+                    description
+                });
+            }
+        })
+    }
+
+    function deletar(id) {
+        deletarNivel(id, {
+            onSuccess: ({ type, description }) => {
+                notification[type]({
                     description,
                     placement: "bottomRight"
                 });
             },
             onError: ({ response: { data: { type, description } } }) => {
-                notification.error({
-                    description
-    
+                notification[type]({
+                    description,
+                    placement: "bottomRight"
                 });
             }
-        })
+        });
     }
 
     return (
@@ -36,112 +54,74 @@ const Niveis = () => {
                     type="primary"
                     icon={<LuPlus />}
                     onClick={() => setMostrarCriar(true)}
-
                 >Novo nível</Button>
             </div>
 
             <div>
                 <Table
                     dataSource={niveis || []}
-                    rowKey={"id"}
                     loading={loadingNiveis}
+                    rowKey={"id"}
                 >
                     <Table.Column
                         title="Nome"
                         dataIndex="nome"
-
-
                     />
-
                     <Table.Column
                         title="Ações"
                         className="w-25"
-                        render={(_, linha)} => (
-                    <div className="flex gap-2"
-                            
-                    <div>
-                        <Button
-                            icon={LuPencil />}
-                            type="primary"
-                        />
-                        <Popconfirm>
-                            title="Deseja realmente apagar?"
-                            okText="Sim"
-                            cancelText="Não"
-                            >
-
-                            <Button
-                                icon={LuTrash2 />}
-                                type="primary"
-                            />
-
-                        </Popconfirm>
-
-                        <title="Aviso:"
-                        description="Deseja realmente apagar?"
-                        okText="Sim"
-                        cancelText="Não"
-                        >
-
-                        <Button
-                            icon={LuTrash2 />}
-                            type="primary"
-                        />
-
-                    </Popconfirm>
-
-                    <title="Aviso:"
-                    description="Deseja realmente apagar?"
-                    okText="Sim"
-                    cancelText="Não"
-                        >
-
-            </div>
+                        render={(_, linha) => (
+                            <div className="flex gap-2">
+                                <Button
+                                    icon={<LuPencil />}
+                                    type="primary"
+                                />
+                                <Popconfirm
+                                    title="Aviso:"
+                                    description="Deseja realmente apagar?"
+                                    okText="Sim"
+                                    cancelText="Não"
+                                    onConfirm={() => deletar(linha.id)}
+                                >
+                                    <Button
+                                        icon={<LuTrash2 />}
+                                        type="primary"
+                                    />
+                                </Popconfirm>
+                            </div>
                         )}
+                    />
+                </Table>
+            </div>
 
-                        />
-
-
-        </Table>
-            </div >
-        </div >
-
-
-    <div>
-        <Drawer
-            title="Criar"
-            open={mostrarCriar}
-            onClose={() => setMostrarCriar(false)}
-
-        >
-            <Form
-                layout="vertical"
-                onFinish={criar}
-
+            <Drawer
+                title="Criar"
+                open={mostrarCriar}
+                onClose={() => setMostrarCriar(false)}
             >
-                <Form.Item
-                    label="Nome"
-                    name="nome"
-                    rules={[{ required: true, message: "Campo obrigatório" }]}
+                <Form
+                    layout="vertical"
+                    onFinish={criar}
                 >
-                    <Input placeholder="Nome do nível" />
-                </Form.Item>
-                <div className="flex justify-end">
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        loading={loadingCriar}
+                    <Form.Item
+                        label="Nome"
+                        name="nome"
+                        rules={[{ required: true, message: "Campo obrigatório" }]}
                     >
-
-                        Enviar
-                    </Button>
-                </div>
-
-            </Form>
-
-        </Drawer>
-
-    </div>
+                        <Input placeholder="nome do nível" />
+                    </Form.Item>
+                    <div className="flex justify-end">
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={loadingCriar}
+                        >
+                            Enviar
+                        </Button>
+                    </div>
+                </Form>
+            </Drawer>
+        </div>
     );
 }
 
