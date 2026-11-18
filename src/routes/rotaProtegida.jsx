@@ -1,10 +1,12 @@
-import { Navigate, useNavigate } from "react-router";
+import { Navigate } from "react-router";
 import { AXIOS } from "../services";
+Import { useContets } from "../services";
+
 
 const RotaProtegida = ({ children }) => {
 
-    const token = sessionStorage.getItem("token");
-    const navigate = useNavigate();
+    const {token, logout} = useContext (adminContext);
+
 
     AXIOS.interceptors.request.use(
         function (config) {
@@ -25,7 +27,7 @@ const RotaProtegida = ({ children }) => {
         function (error) {
 
             if (error.status == 401) {
-                navigate("/");
+               logout();
             }
             return Promise.reject(error);
         }
