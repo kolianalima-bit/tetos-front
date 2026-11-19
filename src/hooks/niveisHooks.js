@@ -27,7 +27,7 @@ export const useCriarNivel = () => {
 
 export const useEditarNivel = () => {
     return useMutation({
-        mutationFn: async (dados, id) => {
+        mutationFn: async (dados) => {
             const res = await AXIOS.put(`/niveis/${dados.id}`, dados);
             return res.data;
         },
